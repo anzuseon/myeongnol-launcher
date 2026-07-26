@@ -1,8 +1,8 @@
-appId: 'helioslauncher'
-productName: 'Helios Launcher'
-artifactName: '${productName}-setup-${version}.${ext}'
+appId: 'kr.myeongnol.launcher'
+productName: '명선놀이터 시즌3'
+artifactName: 'Myeongnol-Launcher-Setup-${version}.${ext}'
 
-copyright: 'Copyright © 2018-2026 Daniel Scalzi'
+copyright: 'Copyright © 2026 Anzu'
 
 asar: true
 compression: 'maximum'
@@ -13,38 +13,17 @@ files:
 extraResources:
   - 'libraries'
 
-# Windows Configuration
-win: 
-  target: 
+win:
+  icon: 'build/icon.png'
+  target:
     - target: 'nsis'
       arch: 'x64'
 
-# Windows Installer Configuration
 nsis:
   oneClick: false
   perMachine: false
   allowElevation: true
   allowToChangeInstallationDirectory: true
-
-# macOS Configuration
-mac:
-  target:
-    - target: 'dmg'
-      arch:
-        - 'x64'
-        - 'arm64'
-  artifactName: '${productName}-setup-${version}-${arch}.${ext}'
-  category: 'public.app-category.games'
-
-# Linux Configuration
-linux: 
-  target: 'AppImage'
-  maintainer: 'Daniel Scalzi'
-  vendor: 'Daniel Scalzi'
-  synopsis: 'Modded Minecraft Launcher'
-  description: 'Custom launcher which allows users to join modded servers. All mods, configurations, and updates are handled automatically.'
-  category: 'Game'
-
 
 directories:
   buildResources: 'build'

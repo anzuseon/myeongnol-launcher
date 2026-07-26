@@ -9,6 +9,7 @@ const os                    = require('os')
 const path                  = require('path')
 
 const ConfigManager            = require('./configmanager')
+const ServerListManager        = require('./serverlistmanager')
 
 const logger = LoggerUtil.getLogger('ProcessBuilder')
 
@@ -46,6 +47,15 @@ class ProcessBuilder {
      */
     build(){
         fs.ensureDirSync(this.gameDir)
+        try {
+            ServerListManager.ensureServerInList(
+                this.gameDir,
+                this.server.rawServer.name,
+                this.server.rawServer.address
+            )
+        } catch(error){
+            logger.warn('Unable to add the configured server to servers.dat.', error)
+        }
         const tempNativePath = path.join(os.tmpdir(), ConfigManager.getTempNativeFolder(), crypto.pseudoRandomBytes(16).toString('hex'))
         process.throwDeprecation = true
         this.setupLiteLoader()
@@ -372,7 +382,7 @@ class ProcessBuilder {
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=HeliosLauncher')
+            args.push('-Xdock:name=MyeongnolLauncher')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))
@@ -401,7 +411,7 @@ class ProcessBuilder {
      */
     _constructJVMArguments113(mods, tempNativePath){
 
-        const argDiscovery = /\${*(.*)}/
+        const argDiscovery = /\$\{([^}]+)\}/g
 
         // JVM Arguments First
         let args = this.vanillaManifest.arguments.jvm
@@ -423,7 +433,7 @@ class ProcessBuilder {
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=HeliosLauncher')
+            args.push('-Xdock:name=MyeongnolLauncher')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))
@@ -483,8 +493,7 @@ class ProcessBuilder {
                 }
 
             } else if(typeof args[i] === 'string'){
-                if(argDiscovery.test(args[i])){
-                    const identifier = args[i].match(argDiscovery)[1]
+                args[i] = args[i].replace(argDiscovery, (placeholder, identifier) => {
                     let val = null
                     switch(identifier){
                         case 'auth_player_name':
@@ -522,22 +531,20 @@ class ProcessBuilder {
                             val = ConfigManager.getGameHeight()
                             break
                         case 'natives_directory':
-                            val = args[i].replace(argDiscovery, tempNativePath)
+                            val = tempNativePath
                             break
                         case 'launcher_name':
-                            val = args[i].replace(argDiscovery, 'Helios-Launcher')
+                            val = 'Myeongnol-Launcher'
                             break
                         case 'launcher_version':
-                            val = args[i].replace(argDiscovery, this.launcherVersion)
+                            val = this.launcherVersion
                             break
                         case 'classpath':
                             val = this.classpathArg(mods, tempNativePath).join(ProcessBuilder.getClasspathSeparator())
                             break
                     }
-                    if(val != null){
-                        args[i] = val
-                    }
-                }
+                    return val == null ? placeholder : val
+                })
             }
         }
 
@@ -717,6 +724,31 @@ class ProcessBuilder {
         const nativesRegex = /.+:natives-([^-]+)(?:-(.+))?/
         const libs = {}
 
+        // Minecraft 26.2+ separates native extraction locations by library
+        // family (${natives_directory}/java, /jna, /lwjgl and /netty).
+        // Older manifests point directly at ${natives_directory}, so keep the
+        // legacy layout unless a segmented path is explicitly requested.
+        const jvmArgs = this.vanillaManifest.arguments?.jvm ?? []
+        const usesSegmentedNativeDirs = jvmArgs.some(arg =>
+            typeof arg === 'string' && arg.includes('${natives_directory}/')
+        )
+
+        const getNativeExtractionPath = (libName) => {
+            if(!usesSegmentedNativeDirs){
+                return tempNativePath
+            }
+            if(libName.startsWith('org.lwjgl:')){
+                return path.join(tempNativePath, 'lwjgl')
+            }
+            if(libName.startsWith('net.java.dev.jna:')){
+                return path.join(tempNativePath, 'jna')
+            }
+            if(libName.startsWith('io.netty:')){
+                return path.join(tempNativePath, 'netty')
+            }
+            return path.join(tempNativePath, 'java')
+        }
+
         const libArr = this.vanillaManifest.libraries
         fs.ensureDirSync(tempNativePath)
         for(let i=0; i<libArr.length; i++){
@@ -750,11 +782,9 @@ class ProcessBuilder {
 
                         // Extract the file.
                         if(!shouldExclude){
-                            fs.writeFile(path.join(tempNativePath, fileName), zipEntries[i].getData(), (err) => {
-                                if(err){
-                                    logger.error('Error while extracting native library:', err)
-                                }
-                            })
+                            const extractionPath = getNativeExtractionPath(lib.name)
+                            fs.ensureDirSync(extractionPath)
+                            fs.writeFileSync(path.join(extractionPath, path.basename(fileName)), zipEntries[i].getData())
                         }
 
                     }
@@ -797,15 +827,13 @@ class ProcessBuilder {
                             }
                         })
 
-                        const extractName = fileName.includes('/') ? fileName.substring(fileName.lastIndexOf('/')) : fileName
+                        const extractName = path.basename(fileName)
 
                         // Extract the file.
                         if(!shouldExclude){
-                            fs.writeFile(path.join(tempNativePath, extractName), zipEntries[i].getData(), (err) => {
-                                if(err){
-                                    logger.error('Error while extracting native library:', err)
-                                }
-                            })
+                            const extractionPath = getNativeExtractionPath(lib.name)
+                            fs.ensureDirSync(extractionPath)
+                            fs.writeFileSync(path.join(extractionPath, extractName), zipEntries[i].getData())
                         }
 
                     }
