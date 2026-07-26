@@ -414,7 +414,14 @@ class ProcessBuilder {
         const argDiscovery = /\$\{([^}]+)\}/g
 
         // JVM Arguments First
-        let args = this.vanillaManifest.arguments.jvm
+        let args = [...this.vanillaManifest.arguments.jvm]
+
+        // Minecraft 26.2 extracts LWJGL natives outside java.library.path.
+        // SharedLibraryExtractPath only controls where bundled natives are
+        // extracted, so Helios must also point LWJGL at the pre-extracted DLLs.
+        if(args.some(arg => typeof arg === 'string' && arg.includes('${natives_directory}/lwjgl'))){
+            args.push(`-Dorg.lwjgl.librarypath=${path.join(tempNativePath, 'lwjgl')}`)
+        }
 
         // Debug securejarhandler
         // args.push('-Dbsl.debug=true')
