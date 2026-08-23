@@ -4,14 +4,10 @@ on: push
 
 jobs:
   release:
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     permissions:
       contents: write
-
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
       - name: Check out Git repository
@@ -32,7 +28,17 @@ jobs:
         shell: bash
 
       - name: Build
+        run: npm run dist:win
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run dist
-        shell: bash
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          gh release create "${{ github.ref_name }}" `
+            "dist/latest.yml" `
+            "dist/Myeongnol-Launcher-Setup-$version.exe" `
+            "dist/Myeongnol-Launcher-Setup-$version.exe.blockmap" `
+            --title "명선놀이터 시즌3 런처 ${{ github.ref_name }}" `
+            --notes "새 설치 기본 설정: 1920x1080 창 모드, GUI 배율 2, 셰이더 활성화, Complementary 중간 프리셋"
