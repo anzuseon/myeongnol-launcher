@@ -9,6 +9,7 @@ const os                    = require('os')
 const path                  = require('path')
 
 const ConfigManager            = require('./configmanager')
+const InitialGameSettings      = require('./initialgamesettings')
 const ServerListManager        = require('./serverlistmanager')
 
 const logger = LoggerUtil.getLogger('ProcessBuilder')
@@ -47,6 +48,13 @@ class ProcessBuilder {
      */
     build(){
         fs.ensureDirSync(this.gameDir)
+        try {
+            if(InitialGameSettings.seedInitialGameSettings(this.gameDir)) {
+                logger.info('Applied recommended settings for a new game instance.')
+            }
+        } catch(error) {
+            logger.warn('Unable to apply initial game settings.', error)
+        }
         try {
             ServerListManager.ensureServerInList(
                 this.gameDir,
