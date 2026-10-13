@@ -9,6 +9,41 @@ const { Type }      = require('helios-distribution-types')
 const AuthManager   = require('./assets/js/authmanager')
 const ConfigManager = require('./assets/js/configmanager')
 const { DistroAPI } = require('./assets/js/distromanager')
+const { BackgroundManager } = require('./assets/js/backgroundmanager')
+
+let backgroundUpdatesStarted = false
+
+function startBackgroundUpdates(){
+    if(backgroundUpdatesStarted) return
+    backgroundUpdatesStarted = true
+    const manager = new BackgroundManager({
+        cacheDirectory: path.join(ConfigManager.getLauncherDirectory(), 'appearance-cache'),
+        validateImage: async (data, format) => {
+            const image = new Image()
+            image.src = `data:image/${format === 'jpg' ? 'jpeg' : format};base64,${data.toString('base64')}`
+            await image.decode()
+        }
+    })
+    let lastCheck = 0
+    const apply = background => {
+        if(background) document.body.style.backgroundImage = `url(${JSON.stringify(background.url)})`
+    }
+    const refresh = () => {
+        if(Date.now() - lastCheck < 30000) return
+        lastCheck = Date.now()
+        manager.refresh().then(apply).catch(error => {
+            loggerUICore.warn('Background refresh failed; keeping the current image.', error.message)
+        })
+    }
+    // Keep login and game setup independent of the appearance service.
+    manager.getCachedBackground().then(apply).finally(refresh)
+    const timer = setInterval(refresh, 5 * 60 * 1000)
+    window.addEventListener('focus', refresh)
+    window.addEventListener('beforeunload', () => {
+        clearInterval(timer)
+        window.removeEventListener('focus', refresh)
+    }, { once: true })
+}
 
 let rscShouldLoad = false
 let fatalStartupError = false
@@ -70,6 +105,7 @@ async function showMainUI(data){
     setTimeout(() => {
         document.getElementById('frameBar').style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
         document.body.style.backgroundImage = `url('assets/images/backgrounds/${document.body.getAttribute('bkid')}.png')`
+        startBackgroundUpdates()
         $('#main').show()
 
         const isLoggedIn = Object.keys(ConfigManager.getAuthAccounts()).length > 0

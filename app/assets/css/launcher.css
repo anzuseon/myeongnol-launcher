@@ -273,12 +273,10 @@ body, button {
 */
 
 #welcomeImageSeal {
-    border-radius: 50%;
-    border: 2px solid #cad7e1;
-    background: rgba(1, 2, 1, 0.5);
-    height: 125px;
-    width: 125px;
-    box-shadow: 0px 0px 10px 0px rgb(0, 0, 0);
+    height: 108px;
+    width: 220px;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
     margin-bottom: 5%;
     margin-top: 10%;
 }
@@ -486,12 +484,10 @@ body, button {
 
 /* Logo on login form. */
 #loginImageSeal {
-    border-radius: 50%;
-    border: 2px solid #cad7e1;
-    background: rgba(1, 2, 1, 0.5);
-    height: 125px;
-    width: 125px;
-    box-shadow: 0px 0px 10px 0px rgb(0, 0, 0);
+    height: 108px;
+    width: 220px;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
     margin-bottom: 20px;
 }
 
@@ -2855,21 +2851,22 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Logo image. */
 #image_seal {
-    height: 70px;
-    width: auto;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
     position: relative;
-    border: 2px solid white;
     box-sizing: border-box;
-    border-radius: 50%;
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
 }
 
 /* Logo container styles. */
 #image_seal_container {
-    position: relative;
-    height: 70px;
-    width: 70px;
-    border-radius: 50%;
-    margin-top: 50px;
+    position: absolute;
+    left: 32px;
+    top: 32px;
+    height: 104px;
+    width: 212px;
+    border-radius: 18px;
 }
 
 /* Logo container styles w/ update. */
@@ -2885,7 +2882,7 @@ input:checked + .toggleSwitchSlider:before {
     width: 100%;
     top: 0%;
     left: 0%;
-    border-radius: 50%;
+    border-radius: 18px;
     box-shadow: 0 0 15px #43c628;
     animation: glow-grow 4s ease-out infinite;
     background: rgba(0, 0, 0, 0.15);
@@ -2909,7 +2906,8 @@ input:checked + .toggleSwitchSlider:before {
     position: absolute;
     z-index: 1;
     top: 115%;
-    left: -17.5px;
+    left: 50%;
+    transform: translateX(-50%);
     font-family: 'Avenir Medium';
     font-size: 12px;
     transition: visibility 0s linear 0.25s, opacity 0.25s ease;
@@ -3941,7 +3939,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Stationary image for the spinner. */
 #loadCenterImage {
     position: absolute;
-    width: 277px;
+    width: 175px;
     height: auto;
 }
 
