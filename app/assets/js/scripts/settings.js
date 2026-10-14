@@ -3,6 +3,7 @@ const os     = require('os')
 const semver = require('semver')
 
 const DropinModUtil  = require('./assets/js/dropinmodutil')
+const { bindSlider } = require('./assets/js/rangeslider')
 const { MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR } = require('./assets/js/ipcconstants')
 
 const settingsState = {
@@ -1240,49 +1241,15 @@ function calculateRangeSliderMeta(v){
  * just divs now :').
  */
 function bindRangeSlider(){
-    Array.from(document.getElementsByClassName('rangeSlider')).map((v) => {
-
-        // Reference the track (thumb).
-        const track = v.getElementsByClassName('rangeSliderTrack')[0]
-
-        // Set the initial slider value.
-        const value = v.getAttribute('value')
-        const sliderMeta = calculateRangeSliderMeta(v)
-
-        updateRangedSlider(v, value, ((value-sliderMeta.min)/sliderMeta.step)*sliderMeta.inc)
-
-        // The magic happens when we click on the track.
-        track.onmousedown = (e) => {
-            if(sliderMeta.ticks <= 0) return
-
-            // Stop moving the track on mouse up.
-            document.onmouseup = (e) => {
-                document.onmousemove = null
-                document.onmouseup = null
-            }
-
-            // Move slider according to the mouse position.
-            document.onmousemove = (e) => {
-
-                // Distance from the beginning of the bar in pixels.
-                const diff = e.pageX - v.offsetLeft - track.offsetWidth/2
-                
-                // Don't move the track off the bar.
-                if(diff >= 0 && diff <= v.offsetWidth-track.offsetWidth/2){
-
-                    // Convert the difference to a percentage.
-                    const perc = (diff/v.offsetWidth)*100
-                    // Calculate the percentage of the closest notch.
-                    const notch = Number(perc/sliderMeta.inc).toFixed(0)*sliderMeta.inc
-
-                    // If we're close to that notch, stick to it.
-                    if(Math.abs(perc-notch) < sliderMeta.inc/2){
-                        updateRangedSlider(v, sliderMeta.min+(sliderMeta.step*(notch/sliderMeta.inc)), notch)
-                    }
-                }
-            }
+    for(const element of document.getElementsByClassName('rangeSlider')){
+        const update = value => {
+            const meta = calculateRangeSliderMeta(element)
+            const notch = meta.max > meta.min ? (value-meta.min)/(meta.max-meta.min)*100 : 0
+            updateRangedSlider(element, value, notch)
         }
-    }) 
+        update(Number(element.getAttribute('value')))
+        bindSlider(element, update)
+    }
 }
 
 /**
@@ -1298,6 +1265,10 @@ function updateRangedSlider(element, value, notch){
     const track = element.getElementsByClassName('rangeSliderTrack')[0]
     
     element.setAttribute('value', value)
+    element.setAttribute('aria-valuemin', element.getAttribute('min'))
+    element.setAttribute('aria-valuemax', element.getAttribute('max'))
+    element.setAttribute('aria-valuenow', value)
+    element.setAttribute('aria-valuetext', `${Number(value).toFixed(1)} GB`)
 
     if(notch < 0){
         notch = 0

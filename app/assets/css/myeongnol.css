@@ -75,6 +75,11 @@ button:focus-visible,a:focus-visible { outline: 2px solid #d0ffbb; outline-offse
 #settingsContainerRight button { color: #e8f7f0; }
 #settingsContainerRight input { color: #fff; }
 #settingsMemoryDesc { color: #bfd8d2; }
+.rangeSlider { height: 28px; margin: 6px 0; background: none; cursor: ew-resize; touch-action: none; user-select: none; }
+.rangeSlider::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 5px; transform: translateY(-50%); border-radius: 3px; background: #71817e; pointer-events: none; }
+.rangeSliderBar { top: 50%; transform: translateY(-50%); height: 5px; pointer-events: none; }
+.rangeSliderTrack { top: 50%; width: 12px; height: 22px; transform: translate(-50%,-50%); border-radius: 6px; cursor: inherit; }
+.rangeSlider[aria-disabled="true"] { cursor: default; opacity: .65; }
 #settingsContainerLeft .settingsNavItem { color: #bfd1ca; font-family: inherit; }
 #settingsContainerLeft .settingsNavItem[selected] { color: #fff; font-weight: 700; }
 #settingsNavHeaderText,#settingsNavDone { font-family: inherit; }
