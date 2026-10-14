@@ -1,5 +1,6 @@
 :root {
-    --mn-sidebar: 226px;
+    --mn-sidebar: 72px;
+    --mn-sidebar-expanded: 226px;
     --mn-ink: #15304a;
     --mn-muted: #53708b;
     --mn-green: #34c936;
@@ -22,13 +23,21 @@ svg use { pointer-events: none; }
     position: absolute; inset: -40px auto 0 0; width: var(--mn-sidebar); padding-top: 40px; box-sizing: border-box;
     background: linear-gradient(110deg,rgba(11,61,59,.91),rgba(19,65,61,.76));
     border-right: 1px solid rgba(236,255,248,.3); backdrop-filter: blur(15px); z-index: 30; color: #fff;
-    display: flex; flex-direction: column; align-items: center;
+    display: flex; flex-direction: column; align-items: center; overflow: hidden;
+    transition: width .22s ease, box-shadow .22s ease;
 }
+#mn-sidebar:hover, #mn-sidebar:has(:focus-visible) { width: var(--mn-sidebar-expanded); box-shadow: 12px 0 35px rgba(7,37,34,.25); }
 #image_seal_container.mn-brand {
     position: relative; left: auto; top: auto; width: 260px; height: 174px;
     align-self: flex-start; margin: 12px 0 0 14px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
 }
 #image_seal { display: block; width: 100%; height: 134px; object-fit: contain; filter: drop-shadow(0 4px 4px rgba(0,0,0,.3)); }
+#image_seal_container.mn-brand { width: calc(var(--mn-sidebar-expanded) - 20px); margin-left: 10px; }
+#image_seal, .mn-season { opacity: 0; transition: opacity .16s ease; }
+#mn-brand-icon { position: absolute; left: 0; top: 10px; width: 52px; height: 52px; object-fit: contain; opacity: 1; transition: opacity .16s ease; }
+#mn-sidebar:hover #image_seal, #mn-sidebar:has(:focus-visible) #image_seal,
+#mn-sidebar:hover .mn-season, #mn-sidebar:has(:focus-visible) .mn-season { opacity: 1; }
+#mn-sidebar:hover #mn-brand-icon, #mn-sidebar:has(:focus-visible) #mn-brand-icon { opacity: 0; pointer-events: none; }
 .mn-season {
     display: block; min-width: 112px; padding: 3px 13px 5px; border: 2px solid #dce9ad; border-radius: 12px;
     color: #fff8c4; font-size: 20px; line-height: 23px; font-weight: 900; letter-spacing: 5px;
@@ -36,18 +45,21 @@ svg use { pointer-events: none; }
 }
 .mn-sidebar-copy { margin: 20px 0 22px; line-height: 1.8; font-size: 14px; transform: rotate(-4deg); text-align: center; }
 .mn-sidebar-copy strong { color: #fff4b6; font-size: 15px; }
-.mn-nav { width: calc(100% - 30px); display: grid; gap: 6px; margin-top: 40px; }
+.mn-nav { width: calc(100% - 16px); display: grid; gap: 6px; margin-top: 40px; }
 .mn-nav-item {
-    width: 100%; display: flex; align-items: center; gap: 17px; padding: 11px 18px; border: 1px solid transparent;
+    width: 100%; display: flex; align-items: center; gap: 17px; padding: 11px 14px; border: 1px solid transparent;
     border-radius: 11px; color: #f4fff9; font-size: 17px; font-weight: 700; background: none; cursor: pointer; text-align: left;
     position: relative; transition: background .16s,border-color .16s;
 }
 .mn-nav-item svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; stroke-linejoin: round; stroke-linecap: round; }
+.mn-nav-item > span:not(#newsButtonAlert) { position: absolute; left: 58px; white-space: nowrap; opacity: 0; transform: translateX(-6px); transition: opacity .16s ease, transform .16s ease; }
+#mn-sidebar:hover .mn-nav-item > span:not(#newsButtonAlert),
+#mn-sidebar:has(:focus-visible) .mn-nav-item > span:not(#newsButtonAlert) { opacity: 1; transform: translateX(0); }
 .mn-nav-item:hover { background: rgba(221,255,220,.12); }
 .mn-nav-item[aria-current="page"] { border-color: rgba(208,255,209,.8); background: linear-gradient(100deg,rgba(95,231,59,.72),rgba(155,226,205,.18)); box-shadow: inset 5px 0 #adff7c,0 0 16px rgba(114,222,112,.12); }
 #newsButton { margin: 0; top: auto; transform: none; height: auto; text-shadow: none; }
 #newsButtonText { font-size: inherit; }
-#newsButtonAlert { position: absolute; right: 16px; left: auto; top: 16px; width: 7px; height: 7px; border-radius: 50%; background: #fff493; }
+#newsButtonAlert { position: absolute; right: 7px; left: auto; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: #fff493; }
 .mn-sidebar-note { margin: auto 0 20px; font-size: 13px; line-height: 1.7; color: #c4f4c4; transform: rotate(-6deg); text-align: center; padding-top: 18px; }
 .mn-sidebar-note svg { width: 27px; height: 27px; stroke: #b6f58b; fill: none; stroke-width: 1.7; display: block; margin: 0 auto 5px; }
 #mn-footer { position: absolute; top: 100%; width: 100%; height: 38px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: rgba(19,54,52,.78); backdrop-filter: blur(12px); color: #e8fff6; border-top: 1px solid rgba(255,255,255,.3); z-index: 35; font-size: 11px; }
@@ -157,8 +169,8 @@ svg use { pointer-events: none; }
 #loginOptionCancelButton { font-size: 13px; padding: 7px 16px; border: 1px solid #a3cab755; border-radius: 9px; }
 #settingsContainerRight input[type="text"],#settingsContainerRight input[type="number"] { -webkit-text-fill-color: #24493e; background: rgba(255,255,255,.75); }
 @media(max-width:1250px) {
-    :root { --mn-sidebar: 200px; }
-    #image_seal_container.mn-brand { width: calc(100% - 20px); height: 138px; margin-left: 10px; }
+    :root { --mn-sidebar-expanded: 200px; }
+    #image_seal_container.mn-brand { width: calc(var(--mn-sidebar-expanded) - 20px); height: 138px; margin-left: 10px; }
     #image_seal { height: 106px; }
     .mn-play-card { width: 380px; padding: 15px; }
     .mn-status-card { width: 286px; padding: 18px 14px 13px; }
@@ -172,7 +184,7 @@ svg use { pointer-events: none; }
     .mn-profile-actions button { padding: 6px 7px; font-size: 10px; }
 }
 @media(max-width:1080px) {
-    :root { --mn-sidebar: 180px; }
+    :root { --mn-sidebar-expanded: 180px; }
     .mn-nav-item { padding: 9px 12px; gap: 11px; }
     .mn-sidebar-copy strong { font-size: 13px; }
     .mn-play-card { width: 360px; }
@@ -183,7 +195,7 @@ svg use { pointer-events: none; }
     .mn-footer-message { display: none !important; }
 }
 @media(max-height:720px) {
-    #image_seal_container.mn-brand { width: calc(100% - 20px); height: 114px; margin-top: 0; margin-left: 10px; }
+    #image_seal_container.mn-brand { width: calc(var(--mn-sidebar-expanded) - 20px); height: 114px; margin-top: 0; margin-left: 10px; }
     #image_seal { height: 84px; }
     .mn-season { font-size: 17px; line-height: 20px; }
     .mn-sidebar-copy { margin: 8px 0 12px; font-size: 12px; line-height: 1.5; }
