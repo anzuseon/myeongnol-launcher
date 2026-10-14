@@ -1,22 +1,21 @@
 :root { --mn-ink: #fff; --mn-muted: #d5e0e1; }
-body,button,input,select,textarea { font-family: "Malgun Gothic","맑은 고딕","Segoe UI",sans-serif; }
+body,button,input,select,textarea { font-family: "Avenir Book","Malgun Gothic","맑은 고딕","Segoe UI",sans-serif; }
 body { overflow: hidden; }
 button { -webkit-app-region: no-drag; }
 button:focus-visible,a:focus-visible { outline: 2px solid #d0ffbb; outline-offset: 5px; }
 #main { top: 40px; height: calc(100% - 40px) !important; background: none !important; }
 #frameBar { height: 40px; background: none !important; border: none; z-index: 100; }
 #frameMain,#frameContentWin,#frameContentDarwin,#frameButtonDockWin { height: 38px; }
-#frameTitleText { font-family: inherit; font-size: 13px; font-weight: 700; padding-left: 22px; text-shadow: 0 1px 5px #000; }
+#frameTitleText { font-family: inherit; font-size: 13px; font-weight: 900; padding-left: 22px; text-shadow: 0 1px 5px #000; }
 #frameTitleDock { padding-top: 0; align-items: center; }
 .frameButton { width: 48px; height: 38px; }
 #image_seal_container.mn-brand { position: absolute; left: 24px; top: 16px; width: 200px; height: 122px; margin: 0; border-radius: 12px; display: flex; flex-direction: column; align-items: center; z-index: 31; }
 #image_seal { width: 100%; height: 98px; display: block; object-fit: contain; filter: drop-shadow(0 2px 5px #0008); }
-.mn-season { color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 4px; margin-top: 3px; text-shadow: 0 1px 4px #000; }
 #mn-footer { position: absolute; left: 26px; right: 26px; bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 32px; z-index: 35; background: none; border: none; color: #fff; }
 .mn-nav { display: flex; gap: 22px; align-items: center; }
 .mn-nav-item,#newsButton,#server_selection_button,#mn-refresh-status,#mn-game-version-button {
     border: none; border-radius: 0; background: none; box-shadow: none; color: #eef5f5; font-size: 13px; padding: 6px 0; cursor: pointer;
-    font-family: inherit; text-shadow: 0 1px 4px #000,0 2px 10px #0009; white-space: nowrap;
+    font-family: inherit; font-weight: 900; text-shadow: 0 1px 4px #000,0 2px 10px #0009; white-space: nowrap;
 }
 .mn-nav-item:hover,.mn-nav-item[aria-current="page"],#server_selection_button:hover,#mn-refresh-status:hover,#mn-game-version-button:hover { color: #c9ffb0; text-shadow: 0 0 9px #c4ffac88,0 1px 4px #000; }
 .mn-nav-item[aria-current="page"] { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
@@ -27,12 +26,12 @@ button:focus-visible,a:focus-visible { outline: 2px solid #d0ffbb; outline-offse
 #landingContainer { position: absolute; inset: 0; width: 100%; height: 100%; background: none !important; overflow: hidden; }
 .mn-home { position: absolute; inset: 0; }
 .mn-profile { position: absolute; right: 28px; top: 16px; display: flex; align-items: center; gap: 18px; background: none; border: none; padding: 0; }
-#user_text { position: static; right: auto; min-width: 0; max-width: 270px; margin: 0; text-align: right; font-size: 18px; font-weight: 700; letter-spacing: .2px; color: #fff; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 5px #000,0 2px 12px #0008; }
+#user_text { position: static; right: auto; min-width: 0; max-width: 270px; margin: 0; text-align: right; font-size: 18px; font-weight: 900; letter-spacing: .2px; color: #fff; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 5px #000,0 2px 12px #0008; }
 #avatarContainer { position: relative; width: 76px; height: 110px; margin: 0; border: none; border-radius: 0; background: none; box-shadow: none; overflow: visible; }
 #user_text { border: none; background: none; padding: 0; cursor: pointer; }
 #mn-avatar-image { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px #0008); }
 #avatarOverlay,#avatarOverlay:hover { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: none; border-radius: 0; background: none; box-shadow: none; opacity: 1; cursor: pointer; }
-.mn-status-summary { position: absolute; left: 26px; bottom: 84px; max-width: calc(100% - 430px); color: #fff; font-size: 12px; text-shadow: 0 1px 5px #000,0 2px 10px #0009; }
+.mn-status-summary { font-weight: 900; position: absolute; left: 26px; bottom: 84px; max-width: calc(100% - 430px); color: #fff; font-size: 12px; text-shadow: 0 1px 5px #000,0 2px 10px #0009; }
 .mn-status-line { display: flex; align-items: baseline; gap: 12px; margin-bottom: 9px; }
 #mn-server-state { font-size: 14px; color: #d7e4e1; }
 #mn-server-state i { display: none; }
@@ -40,22 +39,22 @@ button:focus-visible,a:focus-visible { outline: 2px solid #d0ffbb; outline-offse
 #mn-server-state[data-state="unknown"] { color: #ffebbd; }
 #mn-refresh-status { font-size: 10px; color: #e1e9e9; padding: 0; }
 #server_status_wrapper { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px 12px; width: auto; }
-#server_status_wrapper > span,#server_status_wrapper > b { font-size: 12px; font-weight: 400; color: #fff; }
+#server_status_wrapper > span,#server_status_wrapper > b { font-size: 12px; font-weight: 900; color: #fff; }
 #server_status_wrapper > span[hidden] { display: none; }
 #player_count { margin: 0 8px 0 0; min-width: 0; color: #fff; text-shadow: inherit; font-family: inherit; }
 #mn-server-latency { margin-right: 8px; }
 #mn-game-version-button { padding: 0; font-size: 12px; }
-#mn-game-version-button b { font-weight: 400; }
+#mn-game-version-button b { font-weight: 900; }
 .mn-launch-area { position: absolute; right: 28px; bottom: 76px; width: 350px; display: flex; flex-direction: column; align-items: flex-end; }
 #launch_content { display: inline-flex; width: auto; }
-#launch_button { display: block; width: auto; min-width: 0; padding: 6px 0; margin: 0; border: none; border-radius: 0; background: none; box-shadow: none; color: #fff; font-size: 32px; font-weight: 700; letter-spacing: 1px; cursor: pointer; text-shadow: 0 2px 5px #000,0 3px 16px #0009; }
+#launch_button { display: block; width: auto; min-width: 0; padding: 6px 0; margin: 0; border: none; border-radius: 0; background: none; box-shadow: none; color: #fff; font-size: 32px; font-weight: 900; letter-spacing: 1px; cursor: pointer; text-shadow: 0 2px 5px #000,0 3px 16px #0009; }
 #launch_button:hover,#launch_button:focus-visible { color: #d5ffc3; background: none; text-shadow: 0 0 12px #b8ffb088,0 2px 5px #000; }
 #launch_button:disabled { color: #c4cecd; opacity: .6; cursor: wait; }
 #server_selection_button { padding: 3px 0; max-width: 100%; font-size: 11px; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; }
 #launch_details { display: flex; flex-direction: column; align-items: stretch; justify-content: center; width: 100%; min-height: 50px; gap: 10px; color: #fff; text-shadow: 0 1px 5px #000; }
 .mn-launch-state { display: flex; align-items: baseline; justify-content: flex-end; gap: 12px; }
-#launch_progress_label { font-size: 18px; font-weight: 700; }
-#launch_details_text { font-size: 12px; color: #fff; overflow: hidden; text-overflow: ellipsis; }
+#launch_progress_label { font-size: 18px; font-weight: 900; }
+#launch_details_text { font-weight: 900; font-size: 12px; color: #fff; overflow: hidden; text-overflow: ellipsis; }
 #launch_progress { width: 100%; height: 2px; border: none; background: none; }
 #launch_progress::-webkit-progress-bar { background: #ffffff38; }
 #launch_progress::-webkit-progress-value { background: #d0ffb9; }
@@ -81,7 +80,7 @@ button:focus-visible,a:focus-visible { outline: 2px solid #d0ffbb; outline-offse
 .rangeSliderTrack { top: 50%; width: 12px; height: 22px; transform: translate(-50%,-50%); border-radius: 6px; cursor: inherit; }
 .rangeSlider[aria-disabled="true"] { cursor: default; opacity: .65; }
 #settingsContainerLeft .settingsNavItem { color: #bfd1ca; font-family: inherit; }
-#settingsContainerLeft .settingsNavItem[selected] { color: #fff; font-weight: 700; }
+#settingsContainerLeft .settingsNavItem[selected] { color: #fff; font-weight: 900; }
 #settingsNavHeaderText,#settingsNavDone { font-family: inherit; }
 #settingsNavDone { border: none; background: none; color: #cfffba; padding: 8px 20px; cursor: pointer; }
 #loginOptionsContainer,#loginContainer,#welcomeContainer,#waitingContainer { position: absolute; left: 235px; right: 24px; top: 0; bottom: 80px; width: auto; height: auto; background: none; }
@@ -94,7 +93,6 @@ button:focus-visible,a:focus-visible { outline: 2px solid #d0ffbb; outline-offse
 @media(max-width:1080px) {
     #image_seal_container.mn-brand { width: 160px; height: 100px; left: 22px; top: 12px; }
     #image_seal { height: 78px; }
-    .mn-season { font-size: 10px; }
     .mn-nav { gap: 16px; }
     .mn-nav-item,#newsButton { font-size: 12px; }
     #user_text { max-width: 205px; font-size: 16px; }
