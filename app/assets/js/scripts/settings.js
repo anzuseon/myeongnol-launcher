@@ -1231,7 +1231,7 @@ function calculateRangeSliderMeta(v){
         step: Number(v.getAttribute('step')),
     }
     val.ticks = (val.max-val.min)/val.step
-    val.inc = 100/val.ticks
+    val.inc = val.ticks > 0 ? 100/val.ticks : 0
     return val
 }
 
@@ -1253,6 +1253,7 @@ function bindRangeSlider(){
 
         // The magic happens when we click on the track.
         track.onmousedown = (e) => {
+            if(sliderMeta.ticks <= 0) return
 
             // Stop moving the track on mouse up.
             document.onmouseup = (e) => {

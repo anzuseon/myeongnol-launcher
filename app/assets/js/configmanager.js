@@ -44,29 +44,32 @@ const configPathLEGACY = path.join(dataPath, 'config.json')
 const firstLaunch = !fs.existsSync(configPath) && !fs.existsSync(configPathLEGACY)
 
 exports.getAbsoluteMinRAM = function(ram){
-    if(ram?.minimum != null) {
-        return ram.minimum/1024
-    } else {
-        // Legacy behavior
-        const mem = os.totalmem()
-        return mem >= (6*1073741824) ? 3 : 2
-    }
+    const required = Number(ram?.minimum)/1024
+    return Math.max(6, Number.isFinite(required) ? required : 0)
 }
 
-exports.getAbsoluteMaxRAM = function(_ram){
+exports.getAbsoluteMaxRAM = function(ram){
     const mem = os.totalmem()
     const gT16 = mem-(16*1073741824)
-    return Math.floor((mem-(gT16 > 0 ? (Number.parseInt(gT16/8) + (16*1073741824)/4) : mem/4))/1073741824)
+    return Math.max(exports.getAbsoluteMinRAM(ram), Math.floor((mem-(gT16 > 0 ? (Number.parseInt(gT16/8) + (16*1073741824)/4) : mem/4))/1073741824))
 }
 
 function resolveSelectedRAM(ram) {
-    if(ram?.recommended != null) {
-        return `${ram.recommended}M`
-    } else {
-        // Legacy behavior
-        const mem = os.totalmem()
-        return mem >= (8*1073741824) ? '4G' : (mem >= (6*1073741824) ? '3G' : '2G')
-    }
+    const minimum = exports.getAbsoluteMinRAM(ram)
+    const recommended = Number(ram?.recommended)
+    return Number.isFinite(recommended) && recommended > minimum*1024 ? `${recommended}M` : `${minimum}G`
+}
+
+function ramInGB(value){
+    const match = /^([0-9]+(?:\.[0-9]+)?)([GM])$/i.exec(String(value))
+    return match ? Number(match[1])/(match[2].toUpperCase() === 'M' ? 1024 : 1) : 0
+}
+
+function enforceMinimumRAM(javaConfig, ram){
+    const minimum = exports.getAbsoluteMinRAM(ram)
+    if(ramInGB(javaConfig.minRAM) < minimum) javaConfig.minRAM = `${minimum}G`
+    const maximumFloor = ramInGB(javaConfig.minRAM)
+    if(ramInGB(javaConfig.maxRAM) < maximumFloor) javaConfig.maxRAM = javaConfig.minRAM
 }
 
 /**
@@ -148,6 +151,9 @@ exports.load = function(){
         }
         if(doValidate){
             config = validateKeySet(DEFAULT_CONFIG, config)
+            for(const javaConfig of Object.values(config.javaConfig)){
+                if(javaConfig && typeof javaConfig === 'object') enforceMinimumRAM(javaConfig)
+            }
             exports.save()
         }
     }
@@ -517,7 +523,7 @@ function defaultJavaConfig(effectiveJavaOptions, ram) {
 
 function defaultJavaConfig8(ram) {
     return {
-        minRAM: resolveSelectedRAM(ram),
+        minRAM: `${exports.getAbsoluteMinRAM(ram)}G`,
         maxRAM: resolveSelectedRAM(ram),
         executable: null,
         jvmOptions: [
@@ -531,7 +537,7 @@ function defaultJavaConfig8(ram) {
 
 function defaultJavaConfig17(ram) {
     return {
-        minRAM: resolveSelectedRAM(ram),
+        minRAM: `${exports.getAbsoluteMinRAM(ram)}G`,
         maxRAM: resolveSelectedRAM(ram),
         executable: null,
         jvmOptions: [
@@ -552,9 +558,10 @@ function defaultJavaConfig17(ram) {
  * @param {*} mcVersion The minecraft version of the server.
  */
 exports.ensureJavaConfig = function(serverid, effectiveJavaOptions, ram) {
-    if(!Object.prototype.hasOwnProperty.call(config.javaConfig, serverid)) {
+    if(!Object.prototype.hasOwnProperty.call(config.javaConfig, serverid) || config.javaConfig[serverid] == null) {
         config.javaConfig[serverid] = defaultJavaConfig(effectiveJavaOptions, ram)
     }
+    enforceMinimumRAM(config.javaConfig[serverid], ram)
 }
 
 /**
@@ -579,6 +586,7 @@ exports.getMinRAM = function(serverid){
  */
 exports.setMinRAM = function(serverid, minRAM){
     config.javaConfig[serverid].minRAM = minRAM
+    enforceMinimumRAM(config.javaConfig[serverid])
 }
 
 /**
@@ -602,7 +610,10 @@ exports.getMaxRAM = function(serverid){
  * @param {string} maxRAM The new maximum amount of memory for JVM initialization.
  */
 exports.setMaxRAM = function(serverid, maxRAM){
-    config.javaConfig[serverid].maxRAM = maxRAM
+    const bounded = ramInGB(maxRAM) >= 6 ? maxRAM : '6G'
+    config.javaConfig[serverid].maxRAM = bounded
+    if(ramInGB(config.javaConfig[serverid].minRAM) > ramInGB(bounded)) config.javaConfig[serverid].minRAM = bounded
+    enforceMinimumRAM(config.javaConfig[serverid])
 }
 
 /**

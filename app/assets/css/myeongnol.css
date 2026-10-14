@@ -150,6 +150,7 @@ svg use { pointer-events: none; }
 #settingsContainerRight span,#settingsContainerRight label,#settingsContainerRight p,#settingsContainerRight input { color: #285444; text-shadow: none; }
 #settingsContainerRight .settingsTabHeaderText { color: #183e32; }
 #settingsContainerRight .settingsTabHeaderDesc { color: #648476; }
+#settingsMemoryDesc { color: #355d4d; }
 #settingsContainerRight button { color: #285d47; }
 #settingsContainerRight input[type="text"],#settingsContainerRight input[type="number"] { border-color: #8fbaa8; }
 #settingsNavHeaderText,#settingsNavDone,.settingsNavItem { font-family: inherit; }
