@@ -5,6 +5,7 @@
     <script src="./assets/js/scripts/uicore.js"></script>
     <script src="./assets/js/scripts/uibinder.js"></script>
     <link type="text/css" rel="stylesheet" href="./assets/css/launcher.css">
+    <link type="text/css" rel="stylesheet" href="./assets/css/myeongnol.css">
     <style>
         body {
             /*background: url('assets/images/backgrounds/<%=bkid%>.jpg') no-repeat center center fixed;*/
@@ -18,7 +19,7 @@
         #main {
             display: none;
             height: calc(100% - 22px);
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+            background: none;
             width: 100%;
             position: absolute;
             z-index: 10;
@@ -31,12 +32,14 @@
 <body bkid="<%=bkid%>">
     <%- include('frame') %>
     <div id="main">
+        <%- include('shell') %>
         <%- include('welcome') %>
         <%- include('login') %>
         <%- include('waiting') %>
         <%- include('loginOptions') %>
         <%- include('settings') %>
         <%- include('landing') %>
+        <script src="./assets/js/scripts/myeongnol.js"></script>
     </div>
     <%- include('overlay') %>
     <div id="loadingContainer">

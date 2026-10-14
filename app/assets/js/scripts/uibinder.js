@@ -60,6 +60,7 @@ const VIEWS = {
 
 // The currently shown view container.
 let currentView
+let viewTransitionSequence = 0
 
 /**
  * Switch launcher views.
@@ -74,10 +75,18 @@ let currentView
  * fades in.
  */
 function switchView(current, next, currentFadeTime = 500, nextFadeTime = 500, onCurrentFade = () => {}, onNextFade = () => {}){
+    const transition = ++viewTransitionSequence
     currentView = next
+    if(typeof syncMyeongnolNavigation === 'function') syncMyeongnolNavigation(next)
+    const views = $(Object.values(VIEWS).join(','))
+    views.stop(true, false).not(current).hide()
     $(`${current}`).fadeOut(currentFadeTime, async () => {
+        if(transition !== viewTransitionSequence) return
         await onCurrentFade()
-        $(`${next}`).fadeIn(nextFadeTime, async () => {
+        if(transition !== viewTransitionSequence) return
+        views.not(next).hide()
+        $(`${next}`).css('opacity', 1).fadeIn(nextFadeTime, async () => {
+            if(transition !== viewTransitionSequence) return
             await onNextFade()
         })
     })
@@ -120,16 +129,8 @@ async function showMainUI(data){
             currentView = VIEWS.welcome
             $(VIEWS.welcome).fadeIn(1000)
         } else {
-            if(isLoggedIn){
-                currentView = VIEWS.landing
-                $(VIEWS.landing).fadeIn(1000)
-            } else {
-                loginOptionsCancelEnabled(false)
-                loginOptionsViewOnLoginSuccess = VIEWS.landing
-                loginOptionsViewOnLoginCancel = VIEWS.loginOptions
-                currentView = VIEWS.loginOptions
-                $(VIEWS.loginOptions).fadeIn(1000)
-            }
+            currentView = VIEWS.landing
+            $(VIEWS.landing).fadeIn(1000)
         }
 
         setTimeout(() => {

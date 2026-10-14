@@ -1,0 +1,43 @@
+<section class="mn-home" aria-label="명선놀이터 홈">
+    <div class="mn-home-bottom">
+        <section class="mn-glass mn-status-card" aria-labelledby="mn-status-heading">
+            <div class="mn-status-top">
+                <div class="mn-grass-block" aria-hidden="true">✦</div>
+                <div><h2 id="mn-status-heading">서버 상태</h2><strong id="mn-server-state" data-state="pending"><i></i>확인 중</strong></div>
+                <button id="mn-refresh-status" title="서버 상태 새로고침" aria-label="서버 상태 새로고침">↻</button>
+            </div>
+            <div class="mn-server-stats" id="server_status_wrapper">
+                <div><span id="landingPlayerLabel">접속자 수</span><b id="player_count">— / —</b></div>
+                <div><span>응답 시간</span><b id="mn-server-latency">—</b></div>
+                <div><span>게임 버전</span><b id="mn-server-version">—</b><small>Minecraft Java</small></div>
+            </div>
+        </section>
+        <section class="mn-glass mn-play-card" aria-label="계정과 게임 실행">
+            <div class="mn-profile">
+                <div id="avatarContainer"><img id="mn-avatar-image" src="assets/images/SealCircle.png" alt="계정 이미지"><button id="avatarOverlay" title="계정 관리" aria-label="계정 관리"></button></div>
+                <div class="mn-profile-copy">
+                    <div class="mn-profile-name"><strong id="user_text">로그인해 주세요</strong><button id="mn-edit-account" title="계정 변경" aria-label="계정 변경">✎</button></div>
+                    <span id="mn-account-state">로그인이 필요합니다</span>
+                    <div class="mn-profile-actions"><button id="mn-account-manage"><svg><use href="#mn-user"/></svg>계정 관리</button><button id="mn-skin-manage">스킨 변경 ↗</button></div>
+                </div>
+            </div>
+            <div id="launch_content">
+                <button id="launch_button"><svg><use href="#mn-play"/></svg><span>게임 실행</span><img src="assets/images/SealCircle.png" alt=""></button>
+            </div>
+            <div id="launch_details" style="display:none" aria-live="polite">
+                <div class="mn-launch-state"><strong id="launch_progress_label">0%</strong><span id="launch_details_text">실행 준비 중...</span></div>
+                <progress id="launch_progress" value="0" max="100"></progress>
+            </div>
+            <div class="mn-quick-actions">
+                <button id="mn-game-version-button"><svg><use href="#mn-settings"/></svg><span>Minecraft<b id="mn-quick-version">—</b></span><em>⌄</em></button>
+                <button id="server_selection_button" title="접속 서버 선택"><svg><use href="#mn-server"/></svg><span>서버 선택<small id="mn-selected-server-name">확인 중</small></span></button>
+                <button id="mn-open-game-folder"><svg><use href="#mn-folder"/></svg><span>게임 폴더<small>폴더 열기</small></span></button>
+            </div>
+        </section>
+    </div>
+    <div class="mn-legacy-services" aria-hidden="true">
+        <span id="mojang_status_icon"></span>
+        <div id="mojangStatusEssentialContainer"></div><div id="mojangStatusNonEssentialContainer"></div>
+    </div>
+</section>
+

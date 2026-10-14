@@ -100,6 +100,14 @@ function setLaunchEnabled(val){
 
 // Bind launch button
 document.getElementById('launch_button').addEventListener('click', async e => {
+    if(ConfigManager.getSelectedAccount() == null){
+        loginOptionsCancelEnabled(true)
+        loginOptionsViewOnLoginSuccess = VIEWS.landing
+        loginOptionsViewOnLoginCancel = VIEWS.landing
+        loginOptionsViewOnCancel = VIEWS.landing
+        switchView(getCurrentView(), VIEWS.loginOptions)
+        return
+    }
     loggerLanding.info('Launching game..')
     try {
         const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
@@ -143,16 +151,20 @@ document.getElementById('avatarOverlay').onclick = async e => {
 
 // Bind selected account
 function updateSelectedAccount(authUser){
-    let username = Lang.queryJS('landing.selectedAccount.noAccountSelected')
+    let username = '로그인해 주세요'
+    document.getElementById('mn-avatar-image').src = 'assets/images/SealCircle.png'
     if(authUser != null){
         if(authUser.displayName != null){
             username = authUser.displayName
         }
         if(authUser.uuid != null){
-            document.getElementById('avatarContainer').style.backgroundImage = `url('https://mc-heads.net/body/${authUser.uuid}/right')`
+            document.getElementById('mn-avatar-image').src = `https://mc-heads.net/body/${encodeURIComponent(authUser.uuid)}/right`
         }
     }
-    user_text.innerHTML = username
+    user_text.textContent = username
+    const accountState = document.getElementById('mn-account-state')
+    accountState.textContent = authUser ? '● 로그인됨' : '로그인이 필요합니다'
+    accountState.dataset.loggedIn = String(!!authUser)
 }
 updateSelectedAccount(ConfigManager.getSelectedAccount())
 
@@ -163,16 +175,20 @@ function updateSelectedServer(serv){
     }
     ConfigManager.setSelectedServer(serv != null ? serv.rawServer.id : null)
     ConfigManager.save()
-    server_selection_button.innerHTML = '&#8226; ' + (serv != null ? serv.rawServer.name : Lang.queryJS('landing.noSelection'))
+    document.getElementById('mn-selected-server-name').textContent = serv != null ? serv.rawServer.name : Lang.queryJS('landing.noSelection')
+    const version = serv?.rawServer.minecraftVersion || '—'
+    document.getElementById('mn-server-version').textContent = version
+    document.getElementById('mn-quick-version').textContent = version
+    document.getElementById('mn-open-game-folder').disabled = serv == null
     if(getCurrentView() === VIEWS.settings){
         animateSettingsTabRefresh()
     }
     setLaunchEnabled(serv != null)
 }
 // Real text is set in uibinder.js on distributionIndexDone.
-server_selection_button.innerHTML = '&#8226; ' + Lang.queryJS('landing.selectedServer.loading')
+document.getElementById('mn-selected-server-name').textContent = Lang.queryJS('landing.selectedServer.loading')
 server_selection_button.onclick = async e => {
-    e.target.blur()
+    e.currentTarget.blur()
     await toggleServerSelection(true)
 }
 
@@ -235,35 +251,33 @@ const refreshMojangStatuses = async function(){
     document.getElementById('mojang_status_icon').style.color = MojangRestAPI.statusToHex(status)
 }
 
-const refreshServerStatus = async (fade = false) => {
-    loggerLanding.info('Refreshing Server Status')
-    const serv = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
+function renderMyeongnolServerStatus(state){
+    const heading = document.getElementById('mn-server-state')
+    heading.dataset.state = state.status
+    heading.replaceChildren()
+    heading.append(document.createElement('i'), document.createTextNode(state.status === 'online' ? '온라인' : state.status === 'pending' ? '확인 중' : '확인 불가'))
+    document.getElementById('player_count').textContent = state.status === 'online' ? state.online + ' / ' + state.max : '— / —'
+    document.getElementById('mn-server-latency').textContent = state.status === 'online' ? state.elapsed + ' ms' : '—'
+    document.getElementById('mn-refresh-status').disabled = state.status === 'pending'
+}
 
-    let pLabel = Lang.queryJS('landing.serverStatus.server')
-    let pVal = Lang.queryJS('landing.serverStatus.offline')
-
+let serverStatusSequence = 0
+const refreshServerStatus = async (_fade = false) => {
+    const sequence = ++serverStatusSequence
+    renderMyeongnolServerStatus({ status: 'pending' })
     try {
-
-        const servStat = await getServerStatus(47, serv.hostname, serv.port)
-        console.log(servStat)
-        pLabel = Lang.queryJS('landing.serverStatus.players')
-        pVal = servStat.players.online + '/' + servStat.players.max
-
-    } catch (err) {
-        loggerLanding.warn('Unable to refresh server status, assuming offline.')
-        loggerLanding.debug(err)
+        const serverId = ConfigManager.getSelectedServer()
+        const serv = (await DistroAPI.getDistribution()).getServerById(serverId)
+        if(!serv) throw new Error('No server selected')
+        const started = performance.now()
+        const status = await getServerStatus(47, serv.hostname, serv.port)
+        if(sequence !== serverStatusSequence || serverId !== ConfigManager.getSelectedServer()) return
+        renderMyeongnolServerStatus({ status: 'online', online: status.players.online, max: status.players.max, elapsed: Math.round(performance.now() - started) })
+    } catch(error) {
+        if(sequence !== serverStatusSequence) return
+        loggerLanding.debug('Unable to query server status.', error)
+        renderMyeongnolServerStatus({ status: 'unknown' })
     }
-    if(fade){
-        $('#server_status_wrapper').fadeOut(250, () => {
-            document.getElementById('landingPlayerLabel').innerHTML = pLabel
-            document.getElementById('player_count').innerHTML = pVal
-            $('#server_status_wrapper').fadeIn(500)
-        })
-    } else {
-        document.getElementById('landingPlayerLabel').innerHTML = pLabel
-        document.getElementById('player_count').innerHTML = pVal
-    }
-    
 }
 
 refreshMojangStatuses()
@@ -660,67 +674,29 @@ let newsGlideCount = 0
  * @param {boolean} up True to slide up, otherwise false. 
  */
 function slide_(up){
-    const lCUpper = document.querySelector('#landingContainer > #upper')
-    const lCLLeft = document.querySelector('#landingContainer > #lower > #left')
-    const lCLCenter = document.querySelector('#landingContainer > #lower > #center')
-    const lCLRight = document.querySelector('#landingContainer > #lower > #right')
-    const newsBtn = document.querySelector('#landingContainer > #lower > #center #content')
-    const landingContainer = document.getElementById('landingContainer')
-    const newsContainer = document.querySelector('#landingContainer > #newsContainer')
-
-    newsGlideCount++
-
-    if(up){
-        lCUpper.style.top = '-200vh'
-        lCLLeft.style.top = '-200vh'
-        lCLCenter.style.top = '-200vh'
-        lCLRight.style.top = '-200vh'
-        newsBtn.style.top = '130vh'
-        newsContainer.style.top = '0px'
-        //date.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'})
-        //landingContainer.style.background = 'rgba(29, 29, 29, 0.55)'
-        landingContainer.style.background = 'rgba(0, 0, 0, 0.50)'
-        setTimeout(() => {
-            if(newsGlideCount === 1){
-                lCLCenter.style.transition = 'none'
-                newsBtn.style.transition = 'none'
-            }
-            newsGlideCount--
-        }, 2000)
-    } else {
-        setTimeout(() => {
-            newsGlideCount--
-        }, 2000)
-        landingContainer.style.background = null
-        lCLCenter.style.transition = null
-        newsBtn.style.transition = null
-        newsContainer.style.top = '100%'
-        lCUpper.style.top = '0px'
-        lCLLeft.style.top = '0px'
-        lCLCenter.style.top = '0px'
-        lCLRight.style.top = '0px'
-        newsBtn.style.top = '10px'
-    }
+    document.getElementById('landingContainer').classList.toggle('mn-news-open', up)
+    document.getElementById('newsButton').setAttribute('aria-expanded', String(up))
 }
 
-// Bind news button.
+// Bind news navigation while retaining the existing feed loading and article controls.
 document.getElementById('newsButton').onclick = () => {
-    // Toggle tabbing.
+    if(!leaveMyeongnolSettings()) return
+    if(getCurrentView() !== VIEWS.landing) switchView(getCurrentView(), VIEWS.landing, 180, 180)
     if(newsActive){
-        $('#landingContainer *').removeAttr('tabindex')
-        $('#newsContainer *').attr('tabindex', '-1')
+        closeMyeongnolNews()
     } else {
-        $('#landingContainer *').attr('tabindex', '-1')
-        $('#newsContainer, #newsContainer *, #lower, #lower #center *').removeAttr('tabindex')
+        newsActive = true
+        slide_(true)
+        $('.mn-home *').attr('tabindex', '-1')
+        $('#newsContainer *').removeAttr('tabindex')
         if(newsAlertShown){
-            $('#newsButtonAlert').fadeOut(2000)
+            $('#newsButtonAlert').fadeOut(200)
             newsAlertShown = false
             ConfigManager.setNewsCacheDismissed(true)
             ConfigManager.save()
         }
     }
-    slide_(!newsActive)
-    newsActive = !newsActive
+    syncMyeongnolNavigation(VIEWS.landing)
 }
 
 // Array to store article meta.
