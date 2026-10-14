@@ -162,9 +162,6 @@ function updateSelectedAccount(authUser){
         }
     }
     user_text.textContent = username
-    const accountState = document.getElementById('mn-account-state')
-    accountState.textContent = authUser ? '● 로그인됨' : '로그인이 필요합니다'
-    accountState.dataset.loggedIn = String(!!authUser)
 }
 updateSelectedAccount(ConfigManager.getSelectedAccount())
 

@@ -49,7 +49,7 @@ document.querySelectorAll('[data-settings-tab]').forEach(button => {
     button.onclick = () => openMyeongnolSettings(button.dataset.settingsTab)
 })
 document.getElementById('mn-account-manage').onclick = () => openMyeongnolSettings('settingsTabAccount')
-document.getElementById('mn-edit-account').onclick = () => openMyeongnolSettings('settingsTabAccount')
+document.getElementById('user_text').onclick = () => openMyeongnolSettings('settingsTabAccount')
 document.getElementById('mn-game-version-button').onclick = () => openMyeongnolSettings('settingsTabMinecraft')
 document.getElementById('mn-skin-manage').onclick = () => shell.openExternal('https://www.minecraft.net/msaprofile')
 document.getElementById('mn-close-news').onclick = () => document.getElementById('newsButton').click()
