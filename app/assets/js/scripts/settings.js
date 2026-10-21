@@ -1076,12 +1076,12 @@ async function loadSelectedServerOnModsTab(){
 
     for(const el of document.getElementsByClassName('settingsSelServContent')) {
         el.innerHTML = `
-            <img class="serverListingImg" src="${serv.rawServer.icon}"/>
+            <img class="serverListingImg" src="${require('./assets/js/servertext').escapeServerText(serv.rawServer.icon)}"/>
             <div class="serverListingDetails">
-                <span class="serverListingName">${serv.rawServer.name}</span>
-                <span class="serverListingDescription">${serv.rawServer.description}</span>
+                <span class="serverListingName">${require('./assets/js/servertext').escapeServerText(serv.rawServer.name)}</span>
+                <span class="serverListingDescription">${require('./assets/js/servertext').escapeServerText(serv.rawServer.description)}</span>
                 <div class="serverListingInfo">
-                    <div class="serverListingVersion">${serv.rawServer.minecraftVersion}</div>
+                    <div class="serverListingVersion">${require('./assets/js/servertext').escapeServerText(serv.rawServer.minecraftVersion)}</div>
                     <div class="serverListingRevision">${serv.rawServer.version}</div>
                     ${serv.rawServer.mainServer ? `<div class="serverListingStarWrapper">
                         <svg id="Layer_1" viewBox="0 0 107.45 104.74" width="20px" height="20px">

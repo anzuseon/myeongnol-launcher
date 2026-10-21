@@ -5,44 +5,49 @@ on: push
 jobs:
   release:
     runs-on: windows-latest
-
     permissions:
       contents: write
-
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v6
-
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
           node-version: 22
-
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: 3.x
-
       - name: Install Dependencies
         run: npm ci
         shell: bash
-
       - name: Test
         run: npm test
-
-      - name: Build
-        run: npm run dist:win -- --publish never
-
-      - name: Publish GitHub release
+      - name: Check published release
+        id: published
         if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $draft = gh release view "${{ github.ref_name }}" --json isDraft --jq .isDraft 2>$null
+          if ($LASTEXITCODE -eq 0 -and $draft -eq 'false') {
+            'exists=true' >> $env:GITHUB_OUTPUT
+            Write-Host 'This immutable release was already published; assets will not be replaced.'
+          } else {
+            'exists=false' >> $env:GITHUB_OUTPUT
+          }
+      - name: Build release
+        if: startsWith(github.ref, 'refs/tags/v') && steps.published.outputs.exists != 'true'
+        run: npm run dist:win -- --publish never
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v') && steps.published.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $version = "${{ github.ref_name }}".TrimStart('v')
           $notesPath = "docs/releases/v$version.md"
-          if (!(Test-Path -LiteralPath $notesPath)) {
-            throw "Release notes are missing: $notesPath"
-          }
+          if (!(Test-Path -LiteralPath $notesPath)) { throw "Release notes are missing: $notesPath" }
           gh release create "${{ github.ref_name }}" `
             "dist/latest.yml" `
             "dist/Myeongnol-Launcher-Setup-$version.exe" `

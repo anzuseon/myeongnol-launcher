@@ -5,3 +5,8 @@
 /logs/
 /dist/
 /app/assets/images/original-helios-*/
+
+# Immutable mod payloads are attached to GitHub Releases; fetch using the pinned manifest.
+/libraries/test-mods/*.jar
+/libraries/test-mods/*.download-*
+/launcher-*.log

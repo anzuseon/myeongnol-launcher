@@ -10,6 +10,7 @@ const path                  = require('path')
 
 const ConfigManager            = require('./configmanager')
 const InitialGameSettings      = require('./initialgamesettings')
+const ManagedGameSettings      = require('./managedgamesettings')
 const ServerListManager        = require('./serverlistmanager')
 
 const logger = LoggerUtil.getLogger('ProcessBuilder')
@@ -48,12 +49,19 @@ class ProcessBuilder {
      */
     build(){
         fs.ensureDirSync(this.gameDir)
+        const isNewInstance = !fs.existsSync(path.join(this.gameDir, 'options.txt'))
         try {
             if(InitialGameSettings.seedInitialGameSettings(this.gameDir)) {
                 logger.info('Applied recommended settings for a new game instance.')
             }
         } catch(error) {
             logger.warn('Unable to apply initial game settings.', error)
+        }
+        try {
+            const result = ManagedGameSettings.applyManagedGameSettings(this.gameDir, { isNewInstance })
+            if(result.status === 'applied') logger.info('Applied managed game defaults. Previous options are backed up when changed.')
+        } catch(error) {
+            logger.warn('Unable to apply managed game defaults; preserving available game settings.', error.message)
         }
         try {
             ServerListManager.ensureServerInList(

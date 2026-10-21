@@ -1,0 +1,22 @@
+const { test } = require('node:test')
+const assert = require('node:assert/strict')
+const fs = require('node:fs/promises')
+const os = require('node:os')
+const path = require('node:path')
+const { startTestAssetServer, resolveTestAssets } = require('../app/assets/js/testassets')
+
+test('bundled artifacts are available only through the loopback token and flat filenames', async t => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'myeongnol-test-assets-'))
+    await fs.writeFile(path.join(directory, 'voice-26.3.jar'), 'verified-content')
+    const { server, baseUrl } = await startTestAssetServer(directory)
+    t.after(async () => { await new Promise(resolve => server.close(resolve)); await fs.rm(directory, { recursive: true }) })
+    assert.equal(server.address().address, '127.0.0.1')
+    assert.equal(await (await fetch(baseUrl + 'voice-26.3.jar')).text(), 'verified-content')
+    assert.equal((await fetch(baseUrl + '%2e%2e%2fpackage.json')).status, 404)
+    assert.equal((await fetch(baseUrl.replace(/\/[a-f0-9]+\/$/, '/wrong/') + 'voice-26.3.jar')).status, 404)
+    assert.equal((await fetch(baseUrl + 'voice-26.3.jar', { method: 'POST' })).status, 404)
+    const profile = { modules: [{ artifact: { url: 'myeongnol-test-asset://voice-26.3.jar' } }] }
+    const resolved = resolveTestAssets(profile, baseUrl)
+    assert.equal(resolved.modules[0].artifact.url, baseUrl + 'voice-26.3.jar')
+    assert.equal(profile.modules[0].artifact.url, 'myeongnol-test-asset://voice-26.3.jar')
+})

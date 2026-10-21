@@ -341,7 +341,25 @@ function getPlatformIcon(filename){
     return path.join(__dirname, 'app', 'assets', 'images', `${filename}.${ext}`)
 }
 
-app.on('ready', createWindow)
+let testAssetServer
+let testAssetBaseUrl
+let managerPreview
+ipcMain.on('myeongnol-manager-preview', event => {
+    event.returnValue = managerPreview ? { server: require('./app/assets/js/testassets').resolveTestAssets(managerPreview.server, testAssetBaseUrl), backgroundUrl: managerPreview.backgroundUrl } : null
+})
+ipcMain.on('myeongnol-test-assets-base', event => { event.returnValue = testAssetBaseUrl })
+app.on('ready', async () => {
+    const { startTestAssetServer } = require('./app/assets/js/testassets')
+    const assetRoot = app.isPackaged ? path.join(process.resourcesPath, 'libraries/test-mods') : path.join(__dirname, 'libraries/test-mods')
+    try {
+        managerPreview = require('./app/assets/js/managedpreview').loadManagedPreview(path.join(app.getPath('appData'), 'MyeongnolLauncherManager', 'preview.json'))
+    } catch(error) { console.warn('Manager preview could not be loaded; using published profiles.', error.message) }
+    const assets = await startTestAssetServer(assetRoot, managerPreview?.fileMap)
+    testAssetServer = assets.server
+    testAssetBaseUrl = assets.baseUrl
+    createWindow()
+})
+app.on('will-quit', () => testAssetServer?.close())
 app.on('ready', createMenu)
 
 app.on('window-all-closed', () => {

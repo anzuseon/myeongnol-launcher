@@ -1,6 +1,6 @@
 {
   "name": "myeongnol-launcher",
-  "version": "1.0.18",
+  "version": "1.0.22",
   "productName": "명선놀이터 시즌3",
   "description": "명놀 전용 Minecraft Launcher",
   "author": "Anzu",
@@ -18,10 +18,12 @@
     "dist:mac": "npm run dist -- -m",
     "dist:linux": "npm run dist -- -l",
     "lint": "eslint .",
-    "test": "node --test test/*.test.cjs"
+    "test": "node --test",
+    "prepare:assets": "node tools/prepare-bundled-assets.cjs",
+    "predist": "npm run prepare:assets"
   },
   "engines": {
-    "node": "22.x.x"
+    "node": ">=22 <25"
   },
   "dependencies": {
     "@electron/remote": "^2.1.3",

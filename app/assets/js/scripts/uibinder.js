@@ -16,6 +16,11 @@ let backgroundUpdatesStarted = false
 function startBackgroundUpdates(){
     if(backgroundUpdatesStarted) return
     backgroundUpdatesStarted = true
+    const managedBackground = require('electron').ipcRenderer.sendSync('myeongnol-manager-preview')?.backgroundUrl
+    if(managedBackground){
+        document.body.style.backgroundImage = `url(${JSON.stringify(managedBackground)})`
+        return
+    }
     const manager = new BackgroundManager({
         cacheDirectory: path.join(ConfigManager.getLauncherDirectory(), 'appearance-cache'),
         validateImage: async (data, format) => {
