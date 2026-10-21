@@ -10,9 +10,11 @@ function loadManagedPreview(configPath){
     if(!fs.existsSync(configPath)) return null
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8').replace(/^\uFEFF/, ''))
     if(config.schemaVersion !== 1 || typeof config.distributionRoot !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_.-]{0,100}$/.test(config.serverId)) throw new Error('Invalid manager preview setting')
-    const root = fs.realpathSync(config.distributionRoot)
+    // Use the native Windows canonicalization for both registration and serving.
+    // Runner/user TEMP paths may contain 8.3 aliases such as RUNNER~1.
+    const root = fs.realpathSync.native(config.distributionRoot)
     const within = value => {
-        const file = fs.realpathSync(value)
+        const file = fs.realpathSync.native(value)
         const relative = path.relative(root, file)
         if(relative.startsWith('..' + path.sep) || relative === '..' || path.isAbsolute(relative) || !fs.statSync(file).isFile()) throw new Error('Preview artifact escapes distribution root')
         return file

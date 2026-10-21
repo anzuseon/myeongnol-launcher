@@ -5,13 +5,13 @@
       "filename": "myeongnol-client-0.90.170-SNAPSHOT-mc26.3.jar",
       "size": 239609532,
       "sha256": "815cc11b2b72a6af25044688727c42a43707a7cfcb562df93452953552e895d7",
-      "url": "https://github.com/anzuseon/myeongnol-launcher/releases/download/v1.0.22/myeongnol-client-0.90.170-SNAPSHOT-mc26.3.jar"
+      "url": "https://github.com/anzuseon/myeongnol-launcher/releases/download/v1.0.23/myeongnol-client-0.90.170-SNAPSHOT-mc26.3.jar"
     },
     {
       "filename": "plasmovoice-fabric-26.3-2.1.17+myeongnol.6.jar",
       "size": 12276942,
       "sha256": "1e6931ea8983f14d1aeb75c5d2eebc9565d73dd09c9efcbb5b701681d045acdb",
-      "url": "https://github.com/anzuseon/myeongnol-launcher/releases/download/v1.0.22/plasmovoice-fabric-26.3-2.1.17%2Bmyeongnol.6.jar"
+      "url": "https://github.com/anzuseon/myeongnol-launcher/releases/download/v1.0.23/plasmovoice-fabric-26.3-2.1.17%2Bmyeongnol.6.jar"
     }
   ]
 }
